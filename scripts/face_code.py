@@ -14,7 +14,7 @@ from PIL import Image, ImageTk
 CACHE_INFO = 'res/scans/cache/cache_info.txt'
 CACHE_PREF = 'res/scans/cache/img_'
 PASSCODE = 'res/scans/passcode.jpg'
-CASC = '/res/xml/haarcascade_frontalface_default.xml'
+CASC = 'res/xml/haarcascade_frontalface_default.xml'
 
 
 """
@@ -60,7 +60,7 @@ class FaceCodeApp:
         if get: cv2.imwrite(path, image)
         with open(CACHE_INFO, 'w') as file: file.write(str(cache_id+1))
         # check valid face id
-        man = RecogManager()
+        man = RecogManager(PASSCODE)
         if man.recog_face(path): 
             self.win.destroy()
             print('Passed user indentification')
@@ -99,9 +99,9 @@ are of the same person.
 """
 class RecogManager:
 
-    def __init__(self):
+    def __init__(self, code):
         self.known_faces = {}
-        self.add_known("user", PASSCODE)
+        self.add_known("user", code)
 
     def add_known(self, name, path):
         image = face_recognition.load_image_file(path)
@@ -117,10 +117,19 @@ class RecogManager:
             if all(matches): return 1
         return 0
     
-    
+
 """
 Execute the program frame
 """
 if __name__=="__main__": 
     app = FaceCodeApp(tk.Tk(), "Face Code Test")
-        
+
+
+"""
+Input: the file path of a face
+Output: if the face the same the face as that in code_path
+"""
+def faceFromPath(face_path, code_path=PASSCODE) -> bool:
+    manager = RecogManager(code_path)
+    return manager.recog_face(face_path)
+    

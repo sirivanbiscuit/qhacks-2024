@@ -2,6 +2,16 @@ from cryptography.fernet import Fernet
 import PySimpleGUI as sg
 import os
 import shutil
+import cv2
+from PIL import Image, ImageTk
+import face_recognition
+
+# put image paths here
+CACHE_INFO = 'res/scans/cache/cache_info.txt'
+CACHE_PREF = 'res/scans/cache/img_'
+PASSCODE = 'res/scans/passcode.jpg'
+CASC = 'res/xml/haarcascade_frontalface_default.xml'
+
 #hi
 # Function to encrypt a file into an executable
 def encrypt_to_exe(file_path):
@@ -54,20 +64,45 @@ def decrypt_from_exe(exe_path, validation_statement):
     # Remove the executable file
     os.remove(exe_path)
 
+
 # Example usage with a simple GUI for file path input
 def main():
     sg.theme('Default1')
 
     layout = [
+        [sg.Text('Take an image of yourself:')],
+        [sg.Image(filename='', key='-IMAGE-')],
         [sg.Text('Select a file to encrypt:')],
         [sg.InputText(key='file_path'), sg.FileBrowse()],
         [sg.Button('Encrypt to EXE'), sg.Button('Decrypt from EXE')]
     ]
 
     window = sg.Window('File Encryptor', layout)
+    vid = cv2.VideoCapture(0)
+    casc = cv2.CascadeClassifier(CASC)
 
     while True:
-        event, values = window.read()
+        event, values = window.read(timeout=20)
+        
+        if event in (sg.WIN_CLOSED, 'Exit'): break
+        
+        ret, frame = vid.read()
+        if ret:
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = casc.detectMultiScale(
+            gray, 
+            scaleFactor=1.1, 
+            minNeighbors=5, 
+            minSize=(30, 30), 
+            flags=cv2.CASCADE_SCALE_IMAGE
+        )
+        # find faces
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            
+        window['-IMAGE-'].update(
+            data=cv2.imencode('.png', frame)[1].tobytes()
+            )
 
         if event == sg.WIN_CLOSED:
             break
@@ -83,7 +118,24 @@ def main():
                 if validation_statement:
                     decrypt_from_exe(file_path, validation_statement)
 
+    vid.release()
     window.close()
+    
+    
+def update(self, vid, casc):
+        # setup frame recieval
+        get, frame = vid.read()
+        frame = cv2.flip(frame, 1)
+        
+        # print webcam image
+        if get:
+            photo = ImageTk.PhotoImage(
+                image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                )
+            self.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
+        # recursively call a new update
+        self.win.after(10, self.update)
+
 
 if __name__ == '__main__':
     main()
