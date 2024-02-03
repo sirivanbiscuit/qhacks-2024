@@ -22,7 +22,7 @@ class RecogManager:
         for name, enc in self.known_faces.items():
             matches = face_recognition.compare_faces([enc], u_enc[0])
             if all(matches): return f'This is a picture of {name}'
-        return 'This is a person, but not Owen'
+        return 'This is a person, but they aren\'t recognized'
 
 
 if __name__=="__main__":
