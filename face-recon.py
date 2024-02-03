@@ -8,6 +8,7 @@ def detect_and_display_face(video_capture):
         ret, frame = video_capture.read()
 
         # Convert the captured frame to grayscale
+        frame = cv2.flip(frame, 1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # Perform face detection
