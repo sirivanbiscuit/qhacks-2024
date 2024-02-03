@@ -1,4 +1,4 @@
-### `file_lockbox.py`
+### `file_lockbox.py` - Mark & Luca
 
 #### 1. Initial Setup
    - **Objective:** Set up the basic structure of the `file_lockbox` program.
@@ -64,7 +64,7 @@
 
 ---
 
-### `auth0_integration.py`
+### `auth0_integration.py` - Later (David)
 
 #### 1. Auth0 Setup
    - **Objective:** Set up Auth0 for desktop application authentication.
@@ -137,7 +137,7 @@
 
 ---
 
-### `face_recognition_setup.py`
+### `face_recognition_setup.py` - David
 
 #### 1. Install Required Libraries
    - **Objective:** Install the necessary libraries for facial recognition and database interaction.
@@ -280,7 +280,7 @@
 
 ---
 
-### `final_integration.py`
+### `final_integration.py` - Later
 
 #### 1. Import Required Libraries
    - **Objective:** Import all the necessary libraries for the final integration.
