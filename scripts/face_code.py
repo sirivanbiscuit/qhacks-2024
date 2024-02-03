@@ -11,9 +11,10 @@ from tkinter import font
 from PIL import Image, ImageTk
 
 # put image paths here
-CACHE_INFO = 'scripts/scans/cache/cache_info.txt'
-CACHE_PREF = 'scripts/scans/cache/img_'
-PASSCODE = 'scripts/scans/passcode.jpg'
+CACHE_INFO = 'res/scans/cache/cache_info.txt'
+CACHE_PREF = 'res/scans/cache/img_'
+PASSCODE = 'res/scans/passcode.jpg'
+CASC = '/res/xml/haarcascade_frontalface_default.xml'
 
 
 """
@@ -44,9 +45,7 @@ class FaceCodeApp:
         self.canvas.pack()
         self.scan.pack(fill=tk.X, expand=True)
         # cascade
-        self.casc = cv2.CascadeClassifier(
-            'C:/Users/siriv/Documents/QHacks 2024/repo/qhacks-2024/scripts/xml/haarcascade_frontalface_default.xml'
-            )
+        self.casc = cv2.CascadeClassifier(CASC)
         # running
         self.update()
         self.win.mainloop()
