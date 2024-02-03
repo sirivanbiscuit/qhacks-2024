@@ -45,7 +45,7 @@ class FaceCodeApp:
         self.scan.pack(fill=tk.X, expand=True)
         # cascade
         self.casc = cv2.CascadeClassifier(
-            cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+            'C:/Users/siriv/Documents/QHacks 2024/repo/qhacks-2024/scripts/xml/haarcascade_frontalface_default.xml'
             )
         # running
         self.update()
@@ -62,8 +62,12 @@ class FaceCodeApp:
         with open(CACHE_INFO, 'w') as file: file.write(str(cache_id+1))
         # check valid face id
         man = RecogManager()
-        if man.recog_face(path): self.win.destroy()
-        else: self.scan.config(fg='red')
+        if man.recog_face(path): 
+            self.win.destroy()
+            print('Passed user indentification')
+        else: 
+            self.scan.config(fg='red')
+            print('Failed user indentification')
     
     def update(self):
         # setup frame recieval

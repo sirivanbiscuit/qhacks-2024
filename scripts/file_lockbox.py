@@ -81,7 +81,7 @@ def main():
     file_path = input("What file are we peeping into?")
 
     #TODO: change/delete path_path input as rn the input is null
-    FILE_PATH = "C:/Users/Mark/Desktop/failed careers.txt"
+    FILE_PATH = "C:/Users/siriv/Documents/QHacks 2024/repo/qhacks-2024/scripts/face_recog_setup.py"
 
     if validate_file_existence(FILE_PATH):
         passcode = input("What... is your favourite colour? ")
