@@ -1,14 +1,12 @@
 import os
-from cv2 import *
 import face_recognition
-from cv2 import VideoCapture, imshow, imwrite, waitKey, destroyWindow
-
+import cv2
 
 class RecogManager:
 
     def __init__(self):
         self.known_faces = {}
-        self.add_known("Owen", r"C:\Users\david\PycharmProjects\qhacks-2024\scripts\imgs\img1.jpg")
+        self.add_known("Owen", "scripts/imgs/img1.jpg")
 
     def add_known(self, name, path):
         image = face_recognition.load_image_file(path)
@@ -24,18 +22,18 @@ class RecogManager:
             if all(matches): return f'This is a picture of {name}'
         return 'This is a person, but they aren\'t recognized'
 
+
 def capture_and_save_image():
     # Open a connection to the webcam
-    cam = VideoCapture(0)
+    cam = cv2.VideoCapture(0)
     result, image = cam.read()
 
     # If image is detected without any error, show result
     if result:
         # Display the image
-        imshow("Image Taker", image)
-
-        # Prompt user for a name
         user_input_name = input("Enter a name for the image: ")
+        cv2.imshow("Image Taker", image)
+        # Prompt user for a name
 
         # Construct the filename
         filename = f"{user_input_name}.png"
@@ -43,20 +41,21 @@ def capture_and_save_image():
 
         # Check if the file already exists, if yes, append a number
         while os.path.exists(filename):
-            filename = f"imgs/{user_input_name}{count}.png"
+            filename = f"scripts/imgs/{user_input_name}{count}.png"
             count += 1
 
         # Save the image with the unique filename
-        imwrite(filename, image)
+        cv2.imwrite(filename, image)
         print(f"Image saved as {filename}")
 
         # Close the image window when x button is clicked
-        key = waitKey(0)
+        key = cv2.waitKey(0)
         if key == 27:  # 27 corresponds to the ASCII value of the escape key
-            destroyWindow("Image Taker")
+            cv2.destroyWindow("Image Taker")
 
     else:
         print("No image detected. Please try again")
+
 
 if __name__ == "__main__":
     # Capture and save image
@@ -64,6 +63,6 @@ if __name__ == "__main__":
 
     # Face recognition test
     manager = RecogManager()
-    test_path = r"C:\Users\david\PycharmProjects\qhacks-2024\scripts\imgs\img4.jpg"
+    test_path = "scripts/imgs/img4.jpg"
     result = manager.recog_face(test_path)
     print(result)
