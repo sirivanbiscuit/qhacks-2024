@@ -129,7 +129,7 @@ if __name__=="__main__":
 Input: the file path of a face
 Output: if the face the same the face as that in code_path
 """
-def faceFromPath(face_path, code_path=PASSCODE) -> bool:
+def faceFromPath(face_path, code_path) -> bool:
     manager = RecogManager(code_path)
     return manager.recog_face(face_path)
     

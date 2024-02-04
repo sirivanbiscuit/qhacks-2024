@@ -8,11 +8,11 @@ def encode_png(file_path):
         encoded_content = base64.b64encode(file_content).decode("utf-8")
 
         # Print the encoded content for debugging
-        print(f"Encoded Content: {encoded_content}")
+        #print(f"Encoded Content: {encoded_content}")
 
         # Write the encoded content to a new file called encoded_photos.txt
-        with open("encoded_photos.txt", "w") as photos_file:
-            photos_file.write(encoded_content)
+        #with open("encoded_photos.txt", "w") as photos_file:
+        #    photos_file.write(encoded_content)
         os.remove(file_path)
         return encoded_content
     except Exception as e:

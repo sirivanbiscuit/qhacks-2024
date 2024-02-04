@@ -2,21 +2,29 @@ from cryptography.fernet import Fernet
 import PySimpleGUI as sg
 import os
 import cv2
+from encode_decode import encode_png, decode_png
+from face_code import faceFromPath
+
 
 
 # put image paths here
-CACHE_INFO = 'res/scans/cache/cache_info.txt'
-CACHE_PREF = 'res/scans/cache/img_'
-PASSCODE = 'res/scans/passcode.jpg'
+CACHE_INFO = 'res/cache/cache_info.txt'
+CACHE_PREF = 'res/cache/img_'
 CASC = 'res/xml/haarcascade_frontalface_default.xml'
+SAVE_XML = 'res/xml/'
+
 
 #hi
 # Function to encrypt a file into an executable
-def encrypt_file(file_path):
+def encrypt_file(file_path, img_path):
     # Generate a key for encryption
-    key = Fernet.generate_key()
-    with open("filekey.key", "wb") as f:  # Change to 'wb' to write bytes
-        f.write(key)
+    #key = Fernet.generate_key()
+    #with open("filekey.key", "wb") as f:  # Change to 'wb' to write bytes
+        #f.write(key)
+
+    key = None
+    with open("filekey.key", "rb") as f:  # Read the key
+        key = f.read()
 
     cipher = Fernet(key)
 
@@ -26,37 +34,33 @@ def encrypt_file(file_path):
 
     # Encrypt the file content
     encrypted_data = cipher.encrypt(data)
+    encoded_img = encode_png(img_path)
 
     # Create a new file with encrypted data, without adding '.exe' extension
     encrypted_file_path = file_path + '.encrypted'
-    with open(encrypted_file_path, 'wb') as encrypted_file:
+    with open(encrypted_file_path, 'w') as encrypted_file:
+        encrypted_file.write(encoded_img)
+    with open(encrypted_file_path, 'a') as encrypted_file:
+        encrypted_file.write('\n')   
+    with open(encrypted_file_path, 'ab') as encrypted_file:
         encrypted_file.write(encrypted_data)
+    
 
     # Remove the original file
     os.remove(file_path)
 
     return encrypted_file_path
 
+
 # Function to decrypt an executable file with a validation statement
-def decrypt_file(encrypted_file_path):
+def decrypt_file(encrypted_file_path, img_attempt_path):
     layout = [[sg.Text("Enter the validation statement:")],
               [sg.InputText()],
               [sg.Button('Submit'), sg.Button('Cancel')]]
 
     window = sg.Window('File Decryption', layout)
 
-    while True:
-        event, values = window.read()
-        if event in (None, 'Cancel'):  # If user closes window or clicks cancel
-            window.close()
-            return
-        validation_statement = values[0]  # Use the input from the GUI as the validation statement
-        if validation_statement == "hi":  # Adjusted validation statement
-            window.close()
-            break
-        else:
-            sg.popup('Validation failed. Try again.')
-
+    
     # Proceed with decryption
     with open("filekey.key", "rb") as f:  # Read the key
         key = f.read()
@@ -65,29 +69,35 @@ def decrypt_file(encrypted_file_path):
 
     # Read the encrypted data
     with open(encrypted_file_path, 'rb') as file:
-        encrypted_data = file.read()
+        all_data = file.readlines()
+        encrypted_img = all_data[0]
+        encrypted_data = all_data[1]
 
+    dec_path = img_attempt_path.rsplit('.png', 1)[0]+'dec.png'
     try:
         decrypted_data = cipher.decrypt(encrypted_data)
+        decode_png(encrypted_img, dec_path)
     except Exception as e:
         sg.popup(f"Decryption failed: {e}")
         return
-
-    # Get the original file path (without .encrypted extension)
-    file_path = encrypted_file_path.rsplit('.encrypted', 1)[0]
-
-    # Write the decrypted data back to the original file
-    with open(file_path, 'wb') as file:
-        file.write(decrypted_data)
-
-    # Remove the encrypted file
-    os.remove(encrypted_file_path)
-
-    sg.popup('File successfully decrypted.')
+    
+    valid_user = faceFromPath(img_attempt_path, dec_path)
+    if valid_user:
+        # Get the original file path (without .encrypted extension)
+        file_path = encrypted_file_path.rsplit('.encrypted', 1)[0]
+        # Write the decrypted data back to the original file
+        with open(file_path, 'wb') as file:
+            file.write(decrypted_data)
+        # Remove the encrypted file
+        os.remove(encrypted_file_path)
+        sg.popup('File successfully decrypted.')
+    else:
+        sg.popup('Facial authentification failed.')
+        
 
 # Example usage with a simple GUI for file path input
 def main():
-    sg.theme('Default1')
+    sg.theme('Dark Amber 5')
 
     layout = [
         [sg.Text('Take an image of yourself:'), sg.Button('Show webcam', key='t_cam')],
@@ -183,14 +193,12 @@ def main():
         elif event == 'enc':
             file_path = values['file_path']
             if file_path:
-                exe_path = encrypt_file(file_path)
+                exe_path = encrypt_file(file_path, cam_img)
                 sg.popup(f'File encrypted and saved as {exe_path}')
         elif event == 'dec':
             file_path = values['file_path']
             if file_path:
-                validation_statement = sg.popup_get_text('Enter validation statement:')
-                if validation_statement:
-                    decrypt_file(file_path)
+                decrypt_file(file_path, cam_img)
 
     vid.release()
     window.close()
