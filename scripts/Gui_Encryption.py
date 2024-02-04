@@ -1,12 +1,17 @@
 from cryptography.fernet import Fernet
 import PySimpleGUI as sg
 import os
+import base64
 import shutil
 #hi
 # Function to encrypt a file into an executable
+
 def encrypt_to_exe(file_path):
     # Generate a key for encryption
     key = Fernet.generate_key()
+    with open("filekey.key", "w") as f:
+        print(key, file = f)
+
     cipher = Fernet(key)
 
     # Read the file content
@@ -32,17 +37,29 @@ def decrypt_from_exe(exe_path, validation_statement):
     with open(exe_path, 'rb') as exe_file:
         encrypted_data = exe_file.read()
 
-    # Ask for validation statement
+    # Ask for the validation statement
     user_input = input("Enter the validation statement: ")
-    #Change here to allow for face == true
+    # Change here to allow for face == true
     if user_input != validation_statement:
         print("Validation failed. Exiting.")
         return
 
+    # Decode the key from base64
+    with open("filekey.key", "rb") as f:
+        key = f.readline()
+
+    key = key.strip()  # Remove any leading/trailing whitespaces
+    key = base64.urlsafe_b64decode(key)
+
     # Decrypt the data using the stored key
-    key = Fernet.generate_key()
     cipher = Fernet(key)
-    decrypted_data = cipher.decrypt(encrypted_data)
+
+    try:
+        decrypted_data = cipher.decrypt(encrypted_data)
+    except Exception as e:
+        # Handle the specific exception
+        print(f"Decryption failed: {e}")
+        return
 
     # Get the original file path
     file_path = os.path.splitext(exe_path)[0]
@@ -53,7 +70,6 @@ def decrypt_from_exe(exe_path, validation_statement):
 
     # Remove the executable file
     os.remove(exe_path)
-
 # Example usage with a simple GUI for file path input
 def main():
     sg.theme('Default1')
