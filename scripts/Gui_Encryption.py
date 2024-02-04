@@ -1,11 +1,10 @@
 from cryptography.fernet import Fernet
-from encode_decode import encode,decode,writeFile
+#from encode_decode import encode,decode,writeFile
 import PySimpleGUI as sg
 import os
 import shutil
 import cv2
 from PIL import Image, ImageTk
-import face_recognition
 
 # put image paths here
 CACHE_INFO = 'res/scans/cache/cache_info.txt'

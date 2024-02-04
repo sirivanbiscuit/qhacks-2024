@@ -32,10 +32,8 @@ def decode_png(encoded_content, output_file_path):
         print(f"Error decoding content: {e}")
 
 # Example usage with a PNG file
-file_path = r"C:\Users\UCA\Downloads\WIN_20240203_18_20_35_Pro.png"
-
-
+#file_path = r"C:\Users\UCA\Downloads\WIN_20240203_18_20_35_Pro.png"
 # Replace with the actual file path
-encoded = encode_png(file_path)
-input(f"encoded:")
-decode_png(encoded, file_path)
+#encoded = encode_png(file_path)
+#input(f"encoded:")
+#decode_png(encoded, file_path)
