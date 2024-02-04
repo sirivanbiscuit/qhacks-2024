@@ -101,7 +101,7 @@ def main():
                 window['t_cam'].update('Show webcam')
                 window['img'].update(disabled=True)
                 window['reset'].update(disabled=True)
-                hide_Cam=True
+                hide_cam=True
                 
         
         if event in (sg.WIN_CLOSED, 'Exit'): break
@@ -174,21 +174,6 @@ def main():
 
     vid.release()
     window.close()
-    
-    
-def update(self, vid, casc):
-        # setup frame recieval
-        get, frame = vid.read()
-        frame = cv2.flip(frame, 1)
-        
-        # print webcam image
-        if get:
-            photo = ImageTk.PhotoImage(
-                image=Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                )
-            self.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
-        # recursively call a new update
-        self.win.after(10, self.update)
 
 
 if __name__ == '__main__':
