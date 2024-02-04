@@ -1,7 +1,9 @@
 from cryptography.fernet import Fernet
+from encode_decode import encode,decode,writeFile
 import PySimpleGUI as sg
 import os
 import shutil
+
 #hi
 # Function to encrypt a file into an executable
 def encrypt_to_exe(file_path):
@@ -27,17 +29,18 @@ def encrypt_to_exe(file_path):
     return exe_path
 
 # Function to decrypt an executable file with a validation statement
-def decrypt_from_exe(exe_path, validation_statement):
+def decrypt_from_exe(exe_path):
     # Read the encrypted data from the executable
     with open(exe_path, 'rb') as exe_file:
         encrypted_data = exe_file.read()
-
+    print(exe_path)
     # Ask for validation statement
-    user_input = input("Enter the validation statement: ")
+   # user_input = input("Enter the validation statement: ")
+    
     #Change here to allow for face == true
-    if user_input != validation_statement:
-        print("Validation failed. Exiting.")
-        return
+   # if user_input != "yes":
+   #     print("Validation failed. Exiting.")
+   #    return
 
     # Decrypt the data using the stored key
     key = Fernet.generate_key()
@@ -78,10 +81,10 @@ def main():
                 sg.popup(f'File encrypted and saved as {exe_path}')
         elif event == 'Decrypt from EXE':
             file_path = values['file_path']
-            if file_path:
-                validation_statement = sg.popup_get_text('Enter validation statement:')
-                if validation_statement:
-                    decrypt_from_exe(file_path, validation_statement)
+            #if file_path:
+               # validation_statement = sg.popup_get_text('Enter validation statement:')
+                #if validation_statement:
+            decrypt_from_exe(file_path)
 
     window.close()
 
