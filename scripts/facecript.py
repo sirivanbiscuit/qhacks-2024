@@ -2,9 +2,8 @@ from cryptography.fernet import Fernet
 import PySimpleGUI as sg
 import os
 import cv2
-from encode_decode import encode_png, decode_png
-from face_code import faceFromPath
-
+from util.enc_dec import encode_png, decode_png
+from util.face_utils import faceFromPath
 
 
 # put image paths here
@@ -96,20 +95,29 @@ def decrypt_file(encrypted_file_path, img_attempt_path):
         
 
 # Example usage with a simple GUI for file path input
-def main():
-    sg.theme('Dark Amber 5')
-
+def main(setup: bool):
+    if setup: sg.theme('Default1')
+    
     layout = [
-        [sg.Text('Take an image of yourself:'), sg.Button('Show webcam', key='t_cam')],
+        [sg.Frame('', layout=[
+            [sg.Text('Take an image of yourself:'), 
+             sg.Button('Show webcam', key='t_cam')]
+        ])],
         [sg.Image(filename='', key='webcam')],
         [sg.Button('Take Image', key='img', disabled=True), 
          sg.Button('Reset', key='reset', disabled=True)],
         [sg.Text('Select a file to encrypt:')],
         [sg.InputText(key='file_path'), sg.FileBrowse()],
-        [sg.Button('Encrypt to EXE', key='enc'), sg.Button('Decrypt from EXE', key='dec')]
+        [sg.Button('Encrypt File', key='enc', expand_x=True), 
+         sg.Button('Decrypt File', key='dec', expand_x=True)],
+        [sg.Text('')],
+        [sg.Frame('', layout=[
+            [sg.Combo(sg.theme_list(), key='dd', readonly=True, enable_events=True),
+            sg.Button('Set Theme', key='st', )]
+        ])]
     ]
 
-    window = sg.Window('File Encryptor', layout)
+    window = sg.Window('FaceCript.ai', layout)
     vid = cv2.VideoCapture(0)
     casc = cv2.CascadeClassifier(CASC)
     cam_img = None
@@ -135,6 +143,14 @@ def main():
                 
         
         if event in (sg.WIN_CLOSED, 'Exit'): break
+        
+        if event == 'st':
+            selected = values['dd']
+            if selected:
+                sg.theme(selected)
+                vid.release()
+                window.close()
+                main(0)
         
         if event == 'img':
             # get id from cache
@@ -205,4 +221,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(1)
