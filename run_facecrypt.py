@@ -2,9 +2,8 @@ from cryptography.fernet import Fernet
 import PySimpleGUI as sg
 import os
 import cv2
-from util.enc_dec import encode_png, decode_png
-from util.face_utils import faceFromPath
-
+from scripts.util.enc_dec import encode_png, decode_png
+from scripts.util.face_utils import faceFromPath
 
 # put image paths here
 CACHE_INFO = 'res/cache/cache_info.txt'
