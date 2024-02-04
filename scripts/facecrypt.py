@@ -11,9 +11,9 @@ CACHE_INFO = 'res/cache/cache_info.txt'
 CACHE_PREF = 'res/cache/img_'
 CASC = 'res/xml/haarcascade_frontalface_default.xml'
 SAVE_XML = 'res/xml/'
+KEY = 'res/filekey/filekey.key'
 
 
-#hi
 # Function to encrypt a file into an executable
 def encrypt_file(file_path, img_path):
     # Generate a key for encryption
@@ -22,14 +22,18 @@ def encrypt_file(file_path, img_path):
         #f.write(key)
 
     key = None
-    with open("filekey.key", "rb") as f:  # Read the key
+    with open(KEY, "rb") as f:  # Read the key
         key = f.read()
 
     cipher = Fernet(key)
 
     # Read the file content
-    with open(file_path, 'rb') as file:
-        data = file.read()
+    try:
+        with open(file_path, 'rb') as file:
+            data = file.read()
+    except FileNotFoundError:
+        sg.popup('File name is invalid')
+        return 0
 
     # Encrypt the file content
     encrypted_data = cipher.encrypt(data)
@@ -47,30 +51,29 @@ def encrypt_file(file_path, img_path):
 
     # Remove the original file
     os.remove(file_path)
-
-    return encrypted_file_path
+    
+    sg.popup(f'File encrypted and saved as {encrypted_file_path}')
+    
+    return 1
 
 
 # Function to decrypt an executable file with a validation statement
 def decrypt_file(encrypted_file_path, img_attempt_path):
-    layout = [[sg.Text("Enter the validation statement:")],
-              [sg.InputText()],
-              [sg.Button('Submit'), sg.Button('Cancel')]]
-
-    window = sg.Window('File Decryption', layout)
-
-    
     # Proceed with decryption
-    with open("filekey.key", "rb") as f:  # Read the key
+    with open(KEY, "rb") as f:  # Read the key
         key = f.read()
 
     cipher = Fernet(key)
 
     # Read the encrypted data
-    with open(encrypted_file_path, 'rb') as file:
-        all_data = file.readlines()
-        encrypted_img = all_data[0]
-        encrypted_data = all_data[1]
+    try:
+        with open(encrypted_file_path, 'rb') as file:
+            all_data = file.readlines()
+            encrypted_img = all_data[0]
+            encrypted_data = all_data[1]
+    except FileNotFoundError:
+        sg.popup('File name is invalid')
+        return
 
     dec_path = img_attempt_path.rsplit('.png', 1)[0]+'dec.png'
     try:
@@ -108,8 +111,8 @@ def main(setup: bool):
          sg.Button('Reset', key='reset', disabled=True)],
         [sg.Text('Select a file to encrypt:')],
         [sg.InputText(key='file_path'), sg.FileBrowse()],
-        [sg.Button('Encrypt File', key='enc', expand_x=True), 
-         sg.Button('Decrypt File', key='dec', expand_x=True)],
+        [sg.Button('Encrypt File', key='enc', expand_x=True, disabled=True), 
+         sg.Button('Decrypt File', key='dec', expand_x=True, disabled=True)],
         [sg.Text('')],
         [sg.Frame('', layout=[
             [sg.Combo(sg.theme_list(), key='dd', readonly=True, enable_events=True),
@@ -117,7 +120,7 @@ def main(setup: bool):
         ])]
     ]
 
-    window = sg.Window('FaceCript.ai', layout)
+    window = sg.Window('FaceCrypt.ai', layout)
     vid = cv2.VideoCapture(0)
     casc = cv2.CascadeClassifier(CASC)
     cam_img = None
@@ -140,8 +143,7 @@ def main(setup: bool):
                 window['img'].update(disabled=True)
                 window['reset'].update(disabled=True)
                 hide_cam=True
-                
-        
+                    
         if event in (sg.WIN_CLOSED, 'Exit'): break
         
         if event == 'st':
@@ -165,12 +167,16 @@ def main(setup: bool):
             freeze_img=True
             window['img'].update(disabled=True)
             window['reset'].update(disabled=False)
+            window['enc'].update(disabled=False)
+            window['dec'].update(disabled=False)
         
         if event == 'reset':
             freeze_img=False
             window['img'].update(disabled=False)
             window['reset'].update(disabled=True)
-        
+            window['enc'].update(disabled=True)
+            window['dec'].update(disabled=True)
+                 
         ret, frame = vid.read()
         faces = []
         if ret:
@@ -209,8 +215,13 @@ def main(setup: bool):
         elif event == 'enc':
             file_path = values['file_path']
             if file_path:
-                exe_path = encrypt_file(file_path, cam_img)
-                sg.popup(f'File encrypted and saved as {exe_path}')
+                encrypt_file(file_path, cam_img)
+                cam_img=None
+                freeze_img=False
+                window['img'].update(disabled=False)
+                window['reset'].update(disabled=True)
+                window['enc'].update(disabled=True)
+                window['dec'].update(disabled=True)
         elif event == 'dec':
             file_path = values['file_path']
             if file_path:
